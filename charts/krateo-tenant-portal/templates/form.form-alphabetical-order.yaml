@@ -1,0 +1,69 @@
+{{- if eq .Values.form.alphabeticalOrder true }}
+kind: Form
+apiVersion: widgets.templates.krateo.io/v1beta1
+metadata:
+  name: {{ .Release.Name }}-form-alphabetical-order
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "krateo.io/verbose": "true"
+spec:
+  widgetData:
+    schema: {}
+    submitActionId: submit-action-from-string-schema
+    actions:
+      rest:
+        - id: submit-action-from-string-schema
+          onEventNavigateTo:
+            eventReason: "CompositionCreated"
+            {{- if eq .Values.blueprint.hasPage true }}
+            url: '${ "/compositions/" + .response.metadata.namespace + "/" + (.response.kind | ascii_downcase) + "/" + .response.metadata.name }'            
+            {{- else }}
+            url: "/blueprints"
+            {{- end }}
+            timeout: 50
+          successMessage: '${"Successfully deployed " + .response.metadata.name + " composition in namespace " + .response.metadata.namespace }'
+          resourceRefId: composition-to-post
+          type: rest
+          payloadToOverride:
+          - name: spec
+            value: ${ .json | del(.composition) }
+          - name: metadata.name
+            value: ${ .json.composition.name }
+          - name: metadata.namespace
+            value: ${ .json.composition.namespace }
+          headers:
+          - "Content-Type: application/json"
+  widgetDataTemplate:
+    - forPath: schema
+      expression: >
+        ${ 
+          .allowedNamespaces[] as $allowedNamespaces
+          | .getOrderedSchema
+          | .properties += {
+              composition: {
+                type: "object",
+                properties: {
+                  name: {
+                    type: "string"
+                  },
+                  namespace: {
+                    type: "string",
+                    enum: $allowedNamespaces
+                  }
+                },
+                required: ["name", "namespace"]
+              }
+            }
+        }
+  resourcesRefsTemplate:
+    - iterator: ${ .allowedNamespacesWithResource[] }
+      template:
+        id: composition-to-post
+        apiVersion: composition.krateo.io/v{{ .Values.blueprint.version | replace "." "-" }}
+        namespace: ${ .namespace }
+        resource: ${ .resource }
+        verb: POST
+  apiRef:
+    name: {{ .Release.Name }}-restaction-schema-override-allows-ns
+    namespace: {{ .Release.Namespace }}
+{{- end }}

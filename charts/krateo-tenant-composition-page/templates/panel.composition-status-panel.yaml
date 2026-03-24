@@ -1,0 +1,25 @@
+kind: Panel
+apiVersion: widgets.templates.krateo.io/v1beta1
+metadata:
+  name: {{ .Values.global.compositionKind | lower }}-{{ .Values.global.compositionName }}-composition-status-panel
+  namespace: {{ .Values.global.compositionNamespace }}
+spec:
+  widgetData:
+    actions: {}
+    items:
+      - resourceRefId: composition-status-panel-table
+      # - resourceRefId: composition-status-panel-flowchart
+  resourcesRefs:
+    items:
+      - id: composition-status-panel-table
+        apiVersion: widgets.templates.krateo.io/v1beta1
+        name: {{ .Values.global.compositionKind | lower }}-{{ .Values.global.compositionName }}-composition-status-panel-table
+        namespace: {{ .Values.global.compositionNamespace }}
+        resource: tables
+        verb: GET
+      # - id: composition-status-panel-flowchart
+      #   apiVersion: widgets.templates.krateo.io/v1beta1
+      #   name: {{ .Values.global.compositionKind | lower }}-{{ .Values.global.compositionName }}-composition-status-panel-flowchart
+      #   namespace: {{ .Values.global.compositionNamespace }}
+      #   resource: flowcharts
+      #   verb: GET

@@ -1,0 +1,36 @@
+kind: TabList
+apiVersion: widgets.templates.krateo.io/v1beta1
+metadata:
+  name: {{ .Values.global.compositionKind | lower }}-{{ .Values.global.compositionName }}-composition-tablist
+  namespace: {{ .Values.global.compositionNamespace }}
+spec:
+  widgetData:
+    allowedResources:
+      - panels
+    items:
+      - label: Events
+        resourceRefId: composition-events-panel
+      - label: Composition Status
+        resourceRefId: composition-status-panel
+      - label: Values
+        resourceRefId: composition-values-panel
+  resourcesRefs:
+    items:
+      - id: composition-events-panel
+        apiVersion: widgets.templates.krateo.io/v1beta1
+        name: {{ .Values.global.compositionKind | lower }}-{{ .Values.global.compositionName }}-composition-events-panel
+        namespace: {{ .Values.global.compositionNamespace }}
+        resource: panels
+        verb: GET
+      - id: composition-status-panel
+        apiVersion: widgets.templates.krateo.io/v1beta1
+        name: {{ .Values.global.compositionKind | lower }}-{{ .Values.global.compositionName }}-composition-status-panel
+        namespace: {{ .Values.global.compositionNamespace }}
+        resource: panels
+        verb: GET
+      - id: composition-values-panel
+        apiVersion: widgets.templates.krateo.io/v1beta1
+        name: {{ .Values.global.compositionKind | lower }}-{{ .Values.global.compositionName }}-composition-values-panel
+        namespace: {{ .Values.global.compositionNamespace }}
+        resource: panels
+        verb: GET

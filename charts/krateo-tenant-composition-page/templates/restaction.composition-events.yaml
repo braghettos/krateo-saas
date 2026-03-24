@@ -1,0 +1,23 @@
+apiVersion: templates.krateo.io/v1
+kind: RESTAction
+metadata:
+  name: {{ .Values.global.compositionKind | lower }}-{{ .Values.global.compositionName }}-composition-events
+  namespace: {{ .Values.global.compositionNamespace }}
+spec:
+  api:
+  - name: getEvents
+    path: "/events/{{ .Values.global.compositionId }}?limit=50"
+    verb: GET
+    endpointRef:
+      name: eventsse-internal-endpoint
+      namespace: {{ .Values.global.krateoNamespace }}
+    headers:
+    - 'Accept: application/json'
+    continueOnError: true
+    errorKey: getEventsError
+  filter: >
+    {
+      list: (
+        (.getEvents // [])
+      )
+    }

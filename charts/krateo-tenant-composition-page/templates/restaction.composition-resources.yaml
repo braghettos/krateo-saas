@@ -1,0 +1,58 @@
+apiVersion: templates.krateo.io/v1
+kind: RESTAction
+metadata:
+  name: {{ .Values.global.compositionKind | lower }}-{{ .Values.global.compositionName }}-composition-resources
+  namespace: {{ .Values.global.compositionNamespace }}
+spec:
+  api:
+  - name: getComposition
+    path: "/apis/{{ .Values.global.compositionGroup }}/{{ .Values.global.compositionInstalledVersion }}/namespaces/{{ .Values.global.compositionNamespace }}/{{ .Values.global.compositionResource }}/{{ .Values.global.compositionName }}"
+    verb: GET
+  - name: allCompositionResources
+    dependsOn:
+      iterator: .getComposition.status.managed
+      name: getComposition
+    path: ${ (.path) }
+    continueOnError: true
+    errorKey: allCompositionResourcesError
+  filter: >
+    {
+      getComposition: .getComposition,
+      allCompositionResources: 
+        # 1) Ensure we always have an array to work with
+        (
+          if (.allCompositionResources | type) == "array" then
+            .allCompositionResources
+          else
+            []
+          end
+        )
+        # 2) If allCompositionResourcesError exists, append a synthetic element
+        + (
+            if .allCompositionResourcesError? then
+              [
+                {
+                  apiVersion: "Error",
+                  status: {
+                    conditions: [
+                      {
+                        type: "Ready",
+                        status: "False",
+                        reason: (.allCompositionResourcesError.message // "")
+                      }
+                    ]
+                  }
+                }
+              ]
+            else
+              []
+            end
+          )
+        # Apply exclusion filters
+        | map(select(
+            (
+              (.apiVersion | startswith("widgets.templates.krateo.io/")) or
+              (.apiVersion == "templates.krateo.io/v1" and .kind == "RESTAction")
+            ) | not
+          ))
+    }

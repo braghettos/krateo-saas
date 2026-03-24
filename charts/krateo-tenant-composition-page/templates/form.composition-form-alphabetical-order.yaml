@@ -1,0 +1,42 @@
+{{- if eq .Values.form.alphabeticalOrder true }}
+kind: Form
+apiVersion: widgets.templates.krateo.io/v1beta1
+metadata:
+  name: {{ .Values.global.compositionKind | lower }}-{{ .Values.global.compositionName }}-composition-form-alphabetical-order
+  namespace: {{ .Values.global.compositionNamespace }}
+spec:
+  widgetData:
+    schema: {}
+    submitActionId: update-action-from-schema
+    actions:
+      rest:
+        - id: update-action-from-schema
+          onEventNavigateTo:
+            eventReason: "CompositionUpdated"
+            url: '${ "/compositions/" + .response.metadata.namespace + "/" + (.response.kind | ascii_downcase) + "/" + .response.metadata.name }'
+            timeout: 50
+          successMessage: '${"Successfully updated " + .response.metadata.name + " composition in namespace " + .response.metadata.namespace}'
+          resourceRefId: composition-to-patch
+          type: rest
+          payloadToOverride:
+          - name: spec
+            value: ${ .json }
+          headers:
+          - "Content-Type: application/merge-patch+json"
+  widgetDataTemplate:
+    - forPath: schema
+      expression: ${ .getOrderedSchema }
+    - forPath: initialValues
+      expression: ${ .getCompositionSpec }
+  resourcesRefs:
+    items:
+    - id: composition-to-patch
+      apiVersion: composition.krateo.io/{{ .Values.global.compositionInstalledVersion }}
+      namespace: {{ .Values.global.compositionNamespace }}
+      name: {{ .Values.global.compositionName }}
+      resource: {{ .Values.global.compositionResource }}
+      verb: PATCH
+  apiRef:
+    name: {{ .Values.global.compositionKind | lower }}-{{ .Values.global.compositionName }}-composition-schema
+    namespace: {{ .Values.global.compositionNamespace }}
+{{- end }}

@@ -1,0 +1,51 @@
+kind: Button
+apiVersion: widgets.templates.krateo.io/v1beta1
+metadata:
+  name: {{ .Values.global.compositionKind | lower }}-{{ .Values.global.compositionName }}-composition-panel-button-paused
+  namespace: {{ .Values.global.compositionNamespace }}
+spec:
+  widgetData:
+    icon: ""
+    type: default
+    shape: circle
+    clickActionId: pause
+    actions:
+      rest:
+        - id: pause
+          resourceRefId: pause
+          type: rest
+          onSuccessNavigateTo: /compositions
+          payload: 
+            metadata:
+              annotations:
+                krateo.io/paused: ""
+          headers:
+          - "Content-Type: application/merge-patch+json"
+  resourcesRefs:
+    items:
+      - id: pause
+        apiVersion: {{ .Values.global.compositionGroup }}/{{ .Values.global.compositionInstalledVersion }}
+        resource: {{ .Values.global.compositionResource }}
+        name: {{ .Values.global.compositionName }}
+        namespace: {{ .Values.global.compositionNamespace }}
+        verb: PATCH
+  widgetDataTemplate:
+    - forPath: icon
+      expression: >
+        ${
+          if .values.metadata.annotations["krateo.io/paused"] == "true"
+          then "fa-play"
+          else "fa-solid fa-stop"
+          end
+        }
+    - forPath: "actions.rest[0].payload.metadata.annotations"
+      expression: >
+        ${
+          if .values.metadata.annotations["krateo.io/paused"] == "true"
+          then {"krateo.io/paused": "false"}
+          else {"krateo.io/paused": "true"}
+          end
+        }
+  apiRef:
+    name: {{ .Values.global.compositionKind | lower }}-{{ .Values.global.compositionName }}-composition-values
+    namespace: {{ .Values.global.compositionNamespace }}

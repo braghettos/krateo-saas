@@ -1,0 +1,68 @@
+apiVersion: templates.krateo.io/v1
+kind: RESTAction
+metadata:
+  name: {{ .Release.Name }}-restaction-schema-override-allows-ns
+  namespace: {{ .Release.Namespace }}
+spec:
+  api:
+  - name: getCompositionDefinitionSchemaNs
+    path: "/call?apiVersion=templates.krateo.io/v1&resource=restactions&name={{ .Release.Name }}-restaction-compositiondefinition-schema-ns&namespace={{ .Release.Namespace }}"
+    verb: GET
+    endpointRef:
+      name: snowplow-endpoint
+      namespace: {{ default "krateo-system" (default dict .Values.global).krateoNamespace }}
+    headers:
+    - 'Accept: application/json'
+    continueOnError: true
+    errorKey: getCompositionDefinitionSchemaNs
+    exportJwt: true 
+  - name: allowedNamespaces
+    continueOnError: true
+    dependsOn: 
+      name: getCompositionDefinitionSchemaNs
+      iterator: .getCompositionDefinitionSchemaNs.status.possibleNamespacesForComposition
+    path: /apis/authorization.k8s.io/v1/selfsubjectaccessreviews
+    verb: POST
+    headers:
+      - "Content-Type: application/json"
+    payload: |
+      ${
+        {
+          "kind": "SelfSubjectAccessReview",
+          "apiVersion": "authorization.k8s.io/v1",
+          "spec": {
+            "resourceAttributes": {
+              "namespace": .namespace,
+              "verb": "create",
+              "group": "composition.krateo.io",
+              "version": "v{{ .Values.blueprint.version | replace "." "-" }}",
+              "resource": .resource
+            }
+          }
+        }
+      }    
+  filter: >
+    {
+      getOrderedSchema: .getCompositionDefinitionSchemaNs.status.getOrderedSchema,
+      getNotOrderedSchema: .getCompositionDefinitionSchemaNs.status.getNotOrderedSchema,
+      getCompositionDefinitionResource: .getCompositionDefinitionSchemaNs.status.getCompositionDefinitionResource,
+      allowedNamespaces: [
+        [.allowedNamespaces[] | .status.allowed] as $allowed
+        | [.getCompositionDefinitionSchemaNs.status.possibleNamespacesForComposition[] | .namespace]
+        | to_entries
+        | map(select($allowed[.key] == true) | .value)
+      ],
+      allowedNamespacesWithResource: [
+        [.allowedNamespaces[] | .status.allowed] as $allowed
+        | .getCompositionDefinitionSchemaNs.status.getCompositionDefinitionResource as $resource
+        | [.getCompositionDefinitionSchemaNs.status.possibleNamespacesForComposition[] | .namespace]
+        | to_entries
+        | map(
+            select($allowed[.key] == true)
+            | {
+                namespace: .value,
+                resource: $resource
+              }
+          )
+      ]
+    }

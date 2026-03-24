@@ -1,0 +1,51 @@
+kind: Button
+apiVersion: widgets.templates.krateo.io/v1beta1
+metadata:
+  name: {{ .Values.global.compositionKind | lower }}-{{ .Values.global.compositionName }}-composition-panel-button-gracefullypaused
+  namespace: {{ .Values.global.compositionNamespace }}
+spec:
+  widgetData:
+    icon: ""
+    type: default
+    shape: circle
+    clickActionId: gracefulpause
+    actions:
+      rest:
+        - id: gracefulpause
+          resourceRefId: gracefulpause
+          type: rest
+          onSuccessNavigateTo: /compositions
+          payload: 
+            metadata:
+              annotations:
+                krateo.io/gracefully-paused: ""
+          headers:
+          - "Content-Type: application/merge-patch+json"
+  resourcesRefs:
+    items:
+      - id: gracefulpause
+        apiVersion: {{ .Values.global.compositionGroup }}/{{ .Values.global.compositionInstalledVersion }}
+        resource: {{ .Values.global.compositionResource }}
+        name: {{ .Values.global.compositionName }}
+        namespace: {{ .Values.global.compositionNamespace }}
+        verb: PATCH
+  widgetDataTemplate:
+    - forPath: icon
+      expression: >
+        ${
+          if .values.metadata.annotations["krateo.io/gracefully-paused"] == "true"
+          then "fa-play"
+          else "fa-pause"
+          end
+        }
+    - forPath: "actions.rest[0].payload.metadata.annotations"
+      expression: >
+        ${
+          if .values.metadata.annotations["krateo.io/gracefully-paused"] == "true"
+          then {"krateo.io/gracefully-paused": "false"}
+          else {"krateo.io/gracefully-paused": "true"}
+          end
+        }
+  apiRef:
+    name: {{ .Values.global.compositionKind | lower }}-{{ .Values.global.compositionName }}-composition-values
+    namespace: {{ .Values.global.compositionNamespace }}

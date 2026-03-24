@@ -1,0 +1,47 @@
+apiVersion: templates.krateo.io/v1
+kind: RESTAction
+metadata:
+  name: {{ .Values.global.compositionKind | lower }}-{{ .Values.global.compositionName }}-composition-schema
+  namespace: {{ .Values.global.compositionNamespace }}
+spec:
+  api:
+  - name: getCompositionSpec
+    path: "/apis/{{ .Values.global.compositionGroup }}/{{ .Values.global.compositionInstalledVersion }}/namespaces/{{ .Values.global.compositionNamespace }}/{{ .Values.global.compositionResource }}/{{ .Values.global.compositionName }}"
+    verb: GET
+    filter: ".getCompositionSpec | .spec"
+  - name: getCompositionMetadata
+    path: "/apis/{{ .Values.global.compositionGroup }}/{{ .Values.global.compositionInstalledVersion }}/namespaces/{{ .Values.global.compositionNamespace }}/{{ .Values.global.compositionResource }}/{{ .Values.global.compositionName }}"
+    verb: GET
+    filter: ".getCompositionMetadata | .metadata | {name: .name, namespace: .namespace}"
+  - name: getOrderedSchema
+    path: ${ "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/{{ .Values.global.compositionResource }}.composition.krateo.io" }
+    verb: GET
+    filter: >
+      .getOrderedSchema.spec.versions[] | select(.name == "{{ .Values.global.compositionInstalledVersion }}") | .schema.openAPIV3Schema.properties.spec
+  - name: namespaces
+    path: /api/v1/namespaces
+    verb: GET
+    filter: '[.namespaces.items[] | .metadata.name]'
+  - name: getCompositionDefinitionNamespace
+    dependsOn:
+      iterator: .namespaces
+      name: namespaces
+    path: ${ "/apis/core.krateo.io/v1alpha1/namespaces/" + (.) + "/compositiondefinitions"}
+    continueOnError: true
+    filter: >
+      if (.getCompositionDefinitionNamespace | type) == "array" then
+        [.getCompositionDefinitionNamespace[]?.items[]?]
+      elif (.getCompositionDefinitionNamespace | type) == "object" then
+        [.getCompositionDefinitionNamespace.items[]?]
+      else
+        []
+      end
+      | map(select(.status.resource == "{{ .Values.global.compositionResource }}"))
+      | map(.metadata.namespace)
+  - name: getNotOrderedSchema
+    dependsOn:
+      name: getCompositionDefinitionNamespace
+    path: ${ "/api/v1/namespaces/"+ (.getCompositionDefinitionNamespace[0]) + "/configmaps/{{ .Values.global.compositionResource }}-{{ .Values.global.compositionInstalledVersion }}-jsonschema-configmap" }
+    verb: GET
+    filter: >
+      .getNotOrderedSchema.data["values.schema.json"]

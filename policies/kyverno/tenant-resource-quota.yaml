@@ -1,0 +1,68 @@
+# Kyverno ClusterPolicy: Auto-generate ResourceQuota for tenant namespaces
+#
+# When a tenant namespace is created (labeled with krateo.io/tenant: "true"),
+# this policy creates a ResourceQuota with default limits.
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: tenant-resource-quota
+spec:
+  rules:
+    - name: create-resource-quota
+      match:
+        any:
+          - resources:
+              kinds:
+                - Namespace
+              selector:
+                matchLabels:
+                  krateo.io/tenant: "true"
+      generate:
+        generateExisting: false
+        apiVersion: v1
+        kind: ResourceQuota
+        name: tenant-quota
+        namespace: "{{ request.object.metadata.name }}"
+        synchronize: true
+        data:
+          spec:
+            hard:
+              requests.cpu: "4"
+              requests.memory: 8Gi
+              limits.cpu: "8"
+              limits.memory: 16Gi
+              pods: "50"
+              persistentvolumeclaims: "10"
+
+    - name: create-network-policy
+      match:
+        any:
+          - resources:
+              kinds:
+                - Namespace
+              selector:
+                matchLabels:
+                  krateo.io/tenant: "true"
+      generate:
+        generateExisting: false
+        apiVersion: networking.k8s.io/v1
+        kind: NetworkPolicy
+        name: tenant-isolation
+        namespace: "{{ request.object.metadata.name }}"
+        synchronize: true
+        data:
+          spec:
+            podSelector: {}
+            policyTypes:
+              - Ingress
+              - Egress
+            ingress:
+              - from:
+                  - namespaceSelector:
+                      matchLabels:
+                        kubernetes.io/metadata.name: "{{ request.object.metadata.name }}"
+                  - namespaceSelector:
+                      matchLabels:
+                        kubernetes.io/metadata.name: krateo-system
+            egress:
+              - {}

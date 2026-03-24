@@ -1,0 +1,8 @@
+kind: Markdown
+apiVersion: widgets.templates.krateo.io/v1beta1
+metadata:
+  name: {{ .Values.global.compositionKind | lower }}-{{ .Values.global.compositionName }}-composition-panel-markdown
+  namespace: {{ .Values.global.compositionNamespace }}
+spec:
+  widgetData:
+    markdown: "{{ .Values.global.compositionName }} is a **{{ .Values.global.compositionResource }}** composition of version _{{ .Values.global.compositionGroup }}/{{ .Values.global.compositionInstalledVersion }}_"

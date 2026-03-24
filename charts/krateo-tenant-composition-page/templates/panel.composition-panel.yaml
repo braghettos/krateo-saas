@@ -1,0 +1,89 @@
+kind: Panel
+apiVersion: widgets.templates.krateo.io/v1beta1
+metadata:
+  name: {{ .Values.global.compositionKind | lower }}-{{ .Values.global.compositionName }}-composition-panel
+  namespace: {{ .Values.global.compositionNamespace }}
+  labels:
+    krateo.io/portal-page: compositions
+spec:
+  apiRef:
+    name: {{ .Values.global.compositionKind | lower }}-{{ .Values.global.compositionName }}-composition-values
+    namespace: {{ .Values.global.compositionNamespace }}
+  widgetData:
+    clickActionId: composition-click-action
+    footer:
+      - resourceRefId: composition-panel-button-delete
+      # - resourceRefId: composition-panel-button-paused
+      - resourceRefId: composition-panel-button-gracefullypaused
+    tags: 
+      - {{ .Values.global.compositionNamespace }}
+      - {{ .Values.global.compositionGroup }}
+      - {{ .Values.global.compositionInstalledVersion }}
+      - {{ .Values.global.compositionKind }}
+      - {{ .Values.global.compositionResource }}
+    icon:
+      name: fa-solid fa-cubes
+      color: blue
+    items:
+      - resourceRefId: composition-panel-paragraph
+    title: {{ .Values.global.compositionName }}
+    actions:
+      navigate:
+        - id: composition-click-action
+          resourceRefId: composition-tablist
+          type: navigate
+          path: /compositions/{{ .Values.global.compositionNamespace }}/{{ .Values.global.compositionKind | lower }}/{{ .Values.global.compositionName }}
+  widgetDataTemplate:
+    - forPath: icon.color
+      expression: >
+        ${
+          .allCompositionResources
+          | map(
+              if (.status.conditions? // [] | map(select(.type == "Ready")) | length) > 0 then
+                (.status.conditions[] | select(.type == "Ready") | .status == "True")
+              elif (.kind == "Application" and .apiVersion == "argoproj.io/v1alpha1") then
+                ((.status.health.status // "" | ascii_downcase) == "healthy")
+              elif (.status.conditions? | length > 0) then
+                (.status.conditions[0].status == "True")
+              else
+                false
+              end
+            ) as $isReadyList
+          | if ($isReadyList | all(.)) then "green" else "orange" end
+        }
+    - forPath: headerLeft
+      expression: ${ ((.values?.status?.conditions // []) | map(select(.type == "Ready") | if .status == "False" then "Ready:False" elif .status == "True" then "Ready:True" else "Ready:Unknown" end) | first) // "Ready:Unknown" }
+    - forPath: headerRight
+      expression: ${ .values // {} | .metadata.creationTimestamp // "In the process of being created" }
+  resourcesRefs:
+    items:
+      - id: composition-panel-paragraph
+        apiVersion: widgets.templates.krateo.io/v1beta1
+        name: {{ .Values.global.compositionKind | lower }}-{{ .Values.global.compositionName }}-composition-panel-markdown
+        namespace: {{ .Values.global.compositionNamespace }}
+        resource: markdowns
+        verb: GET
+      - id: composition-panel-button-delete
+        apiVersion: widgets.templates.krateo.io/v1beta1
+        name: {{ .Values.global.compositionKind | lower }}-{{ .Values.global.compositionName }}-composition-panel-button-delete
+        namespace: {{ .Values.global.compositionNamespace }}
+        resource: buttons
+        verb: DELETE
+      # - id: composition-panel-button-paused
+      #   apiVersion: widgets.templates.krateo.io/v1beta1
+      #   name: {{ .Values.global.compositionKind | lower }}-{{ .Values.global.compositionName }}-composition-panel-button-paused
+      #   namespace: {{ .Values.global.compositionNamespace }}
+      #   resource: buttons
+      #   verb: PATCH
+      - id: composition-panel-button-gracefullypaused
+        apiVersion: widgets.templates.krateo.io/v1beta1
+        name: {{ .Values.global.compositionKind | lower }}-{{ .Values.global.compositionName }}-composition-panel-button-gracefullypaused
+        namespace: {{ .Values.global.compositionNamespace }}
+        resource: buttons
+        verb: PATCH
+      - id: composition-tablist
+        apiVersion: widgets.templates.krateo.io/v1beta1
+        name: {{ .Values.global.compositionKind | lower }}-{{ .Values.global.compositionName }}-composition-tablist
+        namespace: {{ .Values.global.compositionNamespace }}
+        resource: tablists
+        verb: GET

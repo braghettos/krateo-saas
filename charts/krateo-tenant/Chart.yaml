@@ -1,0 +1,22 @@
+apiVersion: v2
+name: krateo-tenant
+description: A Krateo SaaS tenant blueprint - deploys a vCluster with Krateo PlatformOps pre-installed
+
+type: application
+
+version: CHART_VERSION
+
+home: https://krateo.io
+icon: "https://github.com/krateoplatformops/krateo/blob/main/docs/media/logo.svg"
+keywords:
+  - krateo
+  - saas
+  - tenant
+  - vcluster
+sources:
+  - https://github.com/braghettos/krateo-saas
+
+dependencies:
+  - name: vcluster
+    version: "0.24.1"
+    repository: "https://charts.loft.sh"
