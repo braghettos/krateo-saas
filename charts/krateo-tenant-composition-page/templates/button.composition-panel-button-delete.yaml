@@ -1,0 +1,30 @@
+kind: Button
+apiVersion: widgets.templates.krateo.io/v1beta1
+metadata:
+  name: {{ .Values.global.compositionKind | lower }}-{{ .Values.global.compositionName }}-composition-panel-button-delete
+  namespace: {{ .Values.global.compositionNamespace }}
+spec:
+  widgetData:
+    icon: fa-trash
+    type: default
+    shape: circle
+    clickActionId: delete
+    actions:
+      rest:
+        - id: delete
+          resourceRefId: delete
+          type: rest
+          onEventNavigateTo:
+            eventReason: "CompositionDeleted"
+            url: "/compositions"
+            timeout: 50
+          headers:
+          - "Content-Type: application/json"
+  resourcesRefs:
+    items:
+      - id: delete
+        apiVersion: {{ .Values.global.compositionGroup }}/{{ .Values.global.compositionInstalledVersion }}
+        resource: {{ .Values.global.compositionResource }}
+        name: {{ .Values.global.compositionName }}
+        namespace: {{ .Values.global.compositionNamespace }}
+        verb: DELETE

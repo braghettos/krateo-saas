@@ -1,0 +1,106 @@
+# Kyverno ClusterPolicy: Auto-provision tenant namespace and RBAC on user login
+#
+# When authn generates a *-clientconfig Secret for a new user, this policy:
+# 1. Creates a namespace for the tenant
+# 2. Creates a Role granting access to tenant compositions
+# 3. Creates a RoleBinding binding the user to the Role
+#
+# Note: This policy is embedded as a step in krateo-saas-installer's krateo-installer.yaml
+# This file serves as documentation and reference.
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: tenant-namespace-on-login
+spec:
+  rules:
+    - name: create-tenant-namespace
+      match:
+        any:
+          - resources:
+              kinds:
+                - Secret
+      preconditions:
+        all:
+          - key: "{{ request.object.metadata.name }}"
+            operator: EndsWith
+            value: "-clientconfig"
+      generate:
+        generateExisting: false
+        apiVersion: v1
+        kind: Namespace
+        name: "{{ replace_all(request.object.metadata.name, '-clientconfig', '') }}"
+        synchronize: true
+        data:
+          metadata:
+            labels:
+              krateo.io/tenant: "true"
+              krateo.io/tenant-user: "{{ replace_all(request.object.metadata.name, '-clientconfig', '') }}"
+
+    - name: create-tenant-role
+      match:
+        any:
+          - resources:
+              kinds:
+                - Secret
+      preconditions:
+        all:
+          - key: "{{ request.object.metadata.name }}"
+            operator: EndsWith
+            value: "-clientconfig"
+      generate:
+        generateExisting: false
+        apiVersion: rbac.authorization.k8s.io/v1
+        kind: Role
+        name: tenant-composition-role
+        namespace: "{{ replace_all(request.object.metadata.name, '-clientconfig', '') }}"
+        synchronize: true
+        data:
+          rules:
+            - apiGroups:
+                - "composition.krateo.io"
+              resources:
+                - "*"
+              verbs:
+                - create
+                - get
+                - list
+                - watch
+                - delete
+                - update
+                - patch
+            - apiGroups:
+                - "templates.krateo.io"
+              resources:
+                - "*"
+              verbs:
+                - get
+                - list
+                - watch
+
+    - name: create-tenant-rolebinding
+      match:
+        any:
+          - resources:
+              kinds:
+                - Secret
+      preconditions:
+        all:
+          - key: "{{ request.object.metadata.name }}"
+            operator: EndsWith
+            value: "-clientconfig"
+      generate:
+        generateExisting: false
+        apiVersion: rbac.authorization.k8s.io/v1
+        kind: RoleBinding
+        name: tenant-composition-rolebinding
+        namespace: "{{ replace_all(request.object.metadata.name, '-clientconfig', '') }}"
+        synchronize: true
+        data:
+          roleRef:
+            apiGroup: rbac.authorization.k8s.io
+            kind: Role
+            name: tenant-composition-role
+          subjects:
+            - kind: User
+              name: "{{ replace_all(request.object.metadata.name, '-clientconfig', '') }}"
+              apiGroup: rbac.authorization.k8s.io

@@ -1,0 +1,26 @@
+apiVersion: templates.krateo.io/v1
+kind: RESTAction
+metadata:
+  name: {{ .Values.global.compositionKind | lower }}-{{ .Values.global.compositionName }}-composition-values
+  namespace: {{ .Values.global.compositionNamespace }}
+spec:
+  api:
+  - name: allCompositionResources
+    path: "/call?apiVersion=templates.krateo.io%2Fv1&resource=restactions&name={{ .Values.global.compositionKind | lower }}-{{ .Values.global.compositionName }}-composition-resources&namespace={{ .Values.global.compositionNamespace }}"
+    verb: GET
+    endpointRef:
+      name: snowplow-endpoint
+      namespace: {{ .Values.global.krateoNamespace }}
+    headers:
+    - 'Accept: application/json'
+    continueOnError: true
+    errorKey: allCompositionResourcesError
+    exportJwt: true
+  - name: getValues
+    path: "/apis/{{ .Values.global.compositionGroup }}/{{ .Values.global.compositionInstalledVersion }}/namespaces/{{ .Values.global.compositionNamespace }}/{{ .Values.global.compositionResource }}/{{ .Values.global.compositionName }}"
+    verb: GET
+  filter: >
+    {
+      allCompositionResources: .allCompositionResources.status.allCompositionResources,
+      values: (.getValues | del(.metadata.managedFields) // [])
+    }

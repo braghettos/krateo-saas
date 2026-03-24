@@ -1,0 +1,29 @@
+apiVersion: core.krateo.io/v1alpha1
+kind: CompositionDefinition
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  chart:
+    {{- $url := .Values.blueprint.url }}
+    repo: {{ .Values.blueprint.repo | default .Values.global.compositionName }} # If empty, the global.compositionName value will be used for backward compatibility to portal-blueprint-page version 1.0.5
+    url: {{ $url | quote }}
+    version: {{ .Values.blueprint.version }}
+    {{- with .Values.blueprint.credentials }}
+    credentials:
+      {{- with .username }}
+      username: {{ . | quote }}
+      {{- end }}
+      {{- with .passwordRef }}
+      passwordRef:
+        {{- with .key }}
+        key: {{ . | quote }}
+        {{- end }}
+        {{- with .name }}
+        name: {{ . | quote }}
+        {{- end }}
+        {{- with .namespace }}
+        namespace: {{ . | quote }}
+        {{- end }}
+      {{- end }}
+    {{- end }}

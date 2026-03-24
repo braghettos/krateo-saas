@@ -1,0 +1,83 @@
+# Default values for template.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# @schema
+# description: Blueprint properties
+# type: object
+# required: true
+# @schema
+blueprint:
+  # @schema
+  # description: Blueprints repo
+  # type: string
+  # @schema
+  repo: krateo-tenant
+  # @schema
+  # description: Blueprints url
+  # type: string
+  # @schema
+  url: oci://ghcr.io/braghettos/krateo-saas
+  # @schema
+  # description: Blueprints version
+  # type: string
+  # required: true
+  # @schema
+  version: 0.1.0
+  # @schema
+  # description: Blueprints dedicated page (Composition)
+  # type: boolean
+  # required: true
+  # default: true
+  # @schema
+  hasPage: true
+
+# @schema
+# description: Blueprint form properties 
+# type: object
+# required: true
+# @schema
+form:
+  # @schema
+  # description: Blueprint form keys order 
+  # type: boolean
+  # required: true
+  # default: false
+  # @schema
+  alphabeticalOrder: false
+
+# @schema
+# description: Blueprint panel properties 
+# type: object
+# required: true
+# @schema
+panel:
+  # @schema
+  # description: Blueprint panel title 
+  # type: string
+  # required: true
+  # @schema
+  title: Deploy Krateo Instance
+  # @schema
+  # description: Blueprint panel icon properties 
+  # type: object
+  # @schema
+  icon:
+    # @schema
+    # description: Bleprint panel icon name 
+    # type: string
+    # required: true
+    # @schema
+    name: fa-cloud
+
+# @schema
+# description: global properties section - if the Helm chart is installed via Composition Dynamic Controller, these are injected by default
+# type: object
+# @schema
+global:
+  # @schema
+  # description: Composition Custom Resource metadata name
+  # type: string
+  # examples: [cloudnative-stack]
+  # @schema    
+  compositionName: krateo-tenant

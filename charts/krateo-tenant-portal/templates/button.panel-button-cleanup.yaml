@@ -1,0 +1,28 @@
+kind: Button
+apiVersion: widgets.templates.krateo.io/v1beta1
+metadata:
+  name: {{ .Release.Name }}-panel-button-cleanup
+  namespace: {{ .Release.Namespace }}
+spec:
+  widgetData:
+    icon: fa-trash
+    type: default
+    shape: circle
+    clickActionId: cleanup
+    actions:
+      rest:
+        - id: cleanup
+          resourceRefId: cleanup
+          type: rest
+          onSuccessNavigateTo: /blueprints
+          successMessage: "Successfully deleted {{ .Release.Name }} blueprint in {{ .Release.Namespace }}"
+          headers:
+          - "Content-Type: application/json"
+  resourcesRefs:
+    items:
+      - id: cleanup
+        apiVersion: composition.krateo.io/v{{ .Chart.Version | replace "." "-" }}
+        resource: portalblueprintpages
+        name:  {{ .Values.global.compositionName }}
+        namespace: {{ .Release.Namespace }}
+        verb: DELETE

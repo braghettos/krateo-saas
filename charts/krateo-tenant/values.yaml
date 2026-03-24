@@ -1,0 +1,98 @@
+# Default values for krateo-tenant.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# @schema
+# description: Tenant name
+# type: string
+# required: true
+# @schema
+tenantName: ""
+
+# @schema
+# description: Plan tier
+# type: string
+# enum: [free, starter, professional, enterprise]
+# required: true
+# @schema
+plan: free
+
+# @schema
+# description: Authentication method for child Krateo
+# type: string
+# enum: [basic, oidc, ldap]
+# required: true
+# @schema
+authMethod: basic
+
+# @schema
+# description: Krateo version to install inside the vCluster
+# type: string
+# required: true
+# @schema
+krateoVersion: "2.7.0"
+
+# @schema
+# description: Feature toggles
+# type: object
+# required: true
+# @schema
+features:
+  # @schema
+  # description: Enable FinOps module
+  # type: boolean
+  # @schema
+  finops: false
+  # @schema
+  # description: Enable Composable Portal
+  # type: boolean
+  # @schema
+  composableportal: true
+  # @schema
+  # description: Enable Composable Operations
+  # type: boolean
+  # @schema
+  composableoperations: true
+
+# @schema
+# description: global properties section - injected by Composition Dynamic Controller
+# type: object
+# @schema
+global:
+  # @schema
+  # description: Composition Custom Resource metadata name
+  # type: string
+  # @schema
+  compositionName: ""
+
+# vCluster subchart configuration
+vcluster:
+  sync:
+    toHost:
+      ingresses:
+        enabled: true
+
+  experimental:
+    deploy:
+      vcluster:
+        helm:
+          - chart:
+              name: installer
+              repo: https://charts.krateo.io
+              version: "2.7.0"
+            values: |-
+              krateoplatformops:
+                composableportal:
+                  enabled: true
+                composableoperations:
+                  enabled: true
+                composablefinops:
+                  enabled: false
+                service:
+                  type: ClusterIP
+                  externalIpAvailable: false
+                ingress:
+                  enabled: true
+            release:
+              name: krateo
+              namespace: krateo-system

@@ -1,0 +1,30 @@
+kind: Button
+apiVersion: widgets.templates.krateo.io/v1beta1
+metadata:
+  name: {{ .Values.global.compositionKind | lower }}-{{ .Values.global.compositionName }}-composition-values-panel-button-edit
+  namespace: {{ .Values.global.compositionNamespace }}
+spec:
+  widgetData:
+    icon: fa-pen
+    type: default
+    shape: circle
+    clickActionId: edit
+    actions:
+      openDrawer:
+        - id: edit
+          resourceRefId: composition-values-form-edit
+          type: openDrawer
+          size: large
+          title: "Composition resource: {{ .Values.global.compositionResource }}, name: {{ .Values.global.compositionName }}, namespace: {{ .Values.global.compositionNamespace }}"
+  resourcesRefs:
+    items:
+      - id: composition-values-form-edit
+        apiVersion: widgets.templates.krateo.io/v1beta1
+        {{- if eq .Values.form.alphabeticalOrder true }}
+        name: {{ .Values.global.compositionKind | lower }}-{{ .Values.global.compositionName }}-composition-form-alphabetical-order
+        {{- else }}
+        name: {{ .Values.global.compositionKind | lower }}-{{ .Values.global.compositionName }}-composition-form-not-alphabetical-order
+        {{- end }}
+        namespace: {{ .Values.global.compositionNamespace }}
+        resource: forms
+        verb: GET

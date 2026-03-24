@@ -1,0 +1,116 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "properties": {
+    "blueprint": {
+      "additionalProperties": false,
+      "description": "Blueprint properties",
+      "properties": {
+        "hasPage": {
+          "default": true,
+          "description": "Blueprints dedicated page (Composition)",
+          "title": "hasPage",
+          "type": "boolean"
+        },
+        "repo": {
+          "default": "krateo-tenant",
+          "description": "Blueprints repo",
+          "title": "repo",
+          "type": "string"
+        },
+        "url": {
+          "default": "oci://ghcr.io/braghettos/krateo-saas",
+          "description": "Blueprints url",
+          "title": "url",
+          "type": "string"
+        },
+        "version": {
+          "default": "0.1.0",
+          "description": "Blueprints version",
+          "title": "version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "version",
+        "hasPage"
+      ],
+      "title": "blueprint",
+      "type": "object"
+    },
+    "form": {
+      "additionalProperties": false,
+      "description": "Blueprint form properties",
+      "properties": {
+        "alphabeticalOrder": {
+          "default": false,
+          "description": "Blueprint form keys order",
+          "title": "alphabeticalOrder",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "alphabeticalOrder"
+      ],
+      "title": "form",
+      "type": "object"
+    },
+    "global": {
+      "additionalProperties": false,
+      "description": "global properties section - if the Helm chart is installed via Composition Dynamic Controller, these are injected by default",
+      "properties": {
+        "compositionName": {
+          "default": "krateo-tenant",
+          "description": "Composition Custom Resource metadata name",
+          "examples": [
+            "cloudnative-stack"
+          ],
+          "title": "compositionName",
+          "type": "string"
+        }
+      },
+      "title": "global",
+      "type": "object"
+    },
+    "panel": {
+      "additionalProperties": false,
+      "description": "Blueprint panel properties",
+      "properties": {
+        "icon": {
+          "additionalProperties": false,
+          "description": "Blueprint panel icon properties",
+          "properties": {
+            "name": {
+              "default": "fa-cloud",
+              "description": "Bleprint panel icon name",
+              "title": "name",
+              "type": "string"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "title": "icon",
+          "type": "object"
+        },
+        "title": {
+          "default": "Deploy Krateo Instance",
+          "description": "Blueprint panel title",
+          "title": "title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "title"
+      ],
+      "title": "panel",
+      "type": "object"
+    }
+  },
+  "required": [
+    "blueprint",
+    "form",
+    "panel"
+  ],
+  "type": "object"
+}

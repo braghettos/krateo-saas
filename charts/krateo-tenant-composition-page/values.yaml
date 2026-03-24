@@ -1,0 +1,85 @@
+# Default values for composition-portal-starter.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# @schema
+# description: Blueprint form properties 
+# type: object
+# required: true
+# @schema
+form:
+  # @schema
+  # description: Blueprint form keys order 
+  # type: boolean
+  # required: true
+  # default: false
+  # @schema
+  alphabeticalOrder: false
+
+# Read more about Composition Dynamic Controller global.values injection here: https://github.com/krateoplatformops/composition-dynamic-controller?tab=readme-ov-file#composition-dynamic-controller-values-injection
+
+# @schema
+# description: global properties section - if the Helm chart is installed via Composition Dynamic Controller, these are injected by default
+# type: object
+# @schema
+global:
+  # @schema
+  # description: Composition Custom Resource metadata uid
+  # type: string
+  # examples: [a4a524f7-33a9-4d71-96d5-9e9b7daa3a42]
+  # @schema    
+  compositionId: a4a524f7-33a9-4d71-96d5-9e9b7daa3a42
+  # @schema
+  # description: Composition Custom Resource metadata name
+  # type: string
+  # examples: [cloudnative-stack]
+  # @schema    
+  compositionName: cloudnative-stack
+  # @schema
+  # description: Composition Custom Resource metadata namespace
+  # type: string
+  # examples: [demo-system]
+  # @schema    
+  compositionNamespace: demo-system
+  # @schema
+  # description: Composition Custom Resource installed version
+  # type: string
+  # examples: [v0-0-1]
+  # @schema  
+  compositionInstalledVersion: v0-3-2
+  # @schema
+  # description: Composition Custom Resource apiVersion
+  # type: string
+  # examples: [composition.krateo.io/v0-0-1]
+  # @schema  
+  compositionApiVersion: composition.krateo.io/v0-3-2
+  # @schema
+  # description: Composition Custom Resource group
+  # type: string
+  # examples: [composition.krateo.io]
+  # @schema
+  compositionGroup: composition.krateo.io
+  # @schema
+  # description: Composition Custom Resource plural name
+  # type: string
+  # examples: [githubscaffoldings]
+  # @schema 
+  compositionResource: cloudnativestacks
+  # @schema
+  # description: Composition Custom Resource kind
+  # type: string
+  # examples: [GithubScaffolding]
+  # @schema    
+  compositionKind: CloudnativeStack
+  # @schema
+  # description: namespace where Krateo is installed
+  # type: string
+  # examples: [krateo-system]
+  # @schema 
+  krateoNamespace: krateo-system
+  # @schema
+  # description: composition graceful pause
+  # type: boolean
+  # examples: ["false"]
+  # @schema 
+  gracefullyPaused: "false"
