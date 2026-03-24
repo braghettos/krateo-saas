@@ -19,10 +19,20 @@ template:
 
 # Generate values.schema.json for blueprint charts
 gen-schema:
-	@for chart in krateo-tenant krateo-tenant-portal krateo-tenant-composition-page; do \
+	@for chart in krateo-tenant-portal krateo-tenant-composition-page; do \
 		echo "Generating schema for $$chart..."; \
 		krateoctl gen-schema charts/$$chart/values.yaml; \
 	done
+	@echo "Generating schema for krateo-tenant (with post-processing)..."
+	@krateoctl gen-schema charts/krateo-tenant/values.yaml
+	@python3 -c "\
+	import json; \
+	f = open('charts/krateo-tenant/values.schema.json', 'r'); schema = json.load(f); f.close(); \
+	schema['additionalProperties'] = True; \
+	schema['properties']['vcluster'] = {'additionalProperties': True, 'description': 'vCluster subchart configuration', 'title': 'vcluster', 'type': 'object'}; \
+	schema['properties'].get('global', {})['additionalProperties'] = True if 'global' in schema['properties'] else None; \
+	schema['required'] = [r for r in schema.get('required', []) if r != 'vcluster']; \
+	f = open('charts/krateo-tenant/values.schema.json', 'w'); json.dump(schema, f, indent=2); f.write('\n'); f.close()"
 
 # Package all charts
 package:

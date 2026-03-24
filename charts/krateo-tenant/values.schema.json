@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "additionalProperties": false,
+  "additionalProperties": true,
   "properties": {
     "authMethod": {
       "default": "basic",
@@ -40,7 +40,7 @@
       "type": "object"
     },
     "global": {
-      "additionalProperties": false,
+      "additionalProperties": true,
       "description": "global properties section - injected by Composition Dynamic Controller",
       "properties": {
         "compositionName": {
@@ -78,151 +78,8 @@
       "type": "string"
     },
     "vcluster": {
-      "additionalProperties": false,
+      "additionalProperties": true,
       "description": "vCluster subchart configuration",
-      "properties": {
-        "experimental": {
-          "additionalProperties": false,
-          "properties": {
-            "deploy": {
-              "additionalProperties": false,
-              "properties": {
-                "vcluster": {
-                  "additionalProperties": false,
-                  "properties": {
-                    "helm": {
-                      "items": {
-                        "anyOf": [
-                          {
-                            "additionalProperties": false,
-                            "properties": {
-                              "chart": {
-                                "additionalProperties": false,
-                                "properties": {
-                                  "name": {
-                                    "default": "installer",
-                                    "title": "name",
-                                    "type": "string"
-                                  },
-                                  "repo": {
-                                    "default": "https://charts.krateo.io",
-                                    "title": "repo",
-                                    "type": "string"
-                                  },
-                                  "version": {
-                                    "default": "2.7.0",
-                                    "title": "version",
-                                    "type": "string"
-                                  }
-                                },
-                                "required": [
-                                  "name",
-                                  "repo",
-                                  "version"
-                                ],
-                                "title": "chart",
-                                "type": "object"
-                              },
-                              "release": {
-                                "additionalProperties": false,
-                                "properties": {
-                                  "name": {
-                                    "default": "krateo",
-                                    "title": "name",
-                                    "type": "string"
-                                  },
-                                  "namespace": {
-                                    "default": "krateo-system",
-                                    "title": "namespace",
-                                    "type": "string"
-                                  }
-                                },
-                                "required": [
-                                  "name",
-                                  "namespace"
-                                ],
-                                "title": "release",
-                                "type": "object"
-                              },
-                              "values": {
-                                "default": "krateoplatformops:\n  composableportal:\n    enabled: true\n  composableoperations:\n    enabled: true\n  composablefinops:\n    enabled: false\n  service:\n    type: ClusterIP\n    externalIpAvailable: false\n  ingress:\n    enabled: true",
-                                "title": "values",
-                                "type": "string"
-                              }
-                            },
-                            "required": [
-                              "chart",
-                              "values",
-                              "release"
-                            ],
-                            "type": "object"
-                          }
-                        ]
-                      },
-                      "title": "helm",
-                      "type": "array"
-                    }
-                  },
-                  "required": [
-                    "helm"
-                  ],
-                  "title": "vcluster",
-                  "type": "object"
-                }
-              },
-              "required": [
-                "vcluster"
-              ],
-              "title": "deploy",
-              "type": "object"
-            }
-          },
-          "required": [
-            "deploy"
-          ],
-          "title": "experimental",
-          "type": "object"
-        },
-        "sync": {
-          "additionalProperties": false,
-          "properties": {
-            "toHost": {
-              "additionalProperties": false,
-              "properties": {
-                "ingresses": {
-                  "additionalProperties": false,
-                  "properties": {
-                    "enabled": {
-                      "default": true,
-                      "title": "enabled",
-                      "type": "boolean"
-                    }
-                  },
-                  "required": [
-                    "enabled"
-                  ],
-                  "title": "ingresses",
-                  "type": "object"
-                }
-              },
-              "required": [
-                "ingresses"
-              ],
-              "title": "toHost",
-              "type": "object"
-            }
-          },
-          "required": [
-            "toHost"
-          ],
-          "title": "sync",
-          "type": "object"
-        }
-      },
-      "required": [
-        "sync",
-        "experimental"
-      ],
       "title": "vcluster",
       "type": "object"
     }
@@ -232,8 +89,7 @@
     "plan",
     "authMethod",
     "krateoVersion",
-    "features",
-    "vcluster"
+    "features"
   ],
   "type": "object"
 }

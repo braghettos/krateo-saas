@@ -57,6 +57,7 @@ features:
 # @schema
 # description: global properties section - injected by Composition Dynamic Controller
 # type: object
+# additionalProperties: true
 # @schema
 global:
   # @schema
@@ -65,7 +66,7 @@ global:
   # @schema
   compositionName: ""
 
-# vCluster subchart configuration
+# vCluster subchart configuration (not schema-annotated - subchart handles its own validation)
 vcluster:
   sync:
     toHost:
