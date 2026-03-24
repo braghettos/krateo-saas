@@ -23,6 +23,15 @@
       "additionalProperties": false,
       "description": "global properties section - if the Helm chart is installed via Composition Dynamic Controller, these are injected by default",
       "properties": {
+        "compositionApiVersion": {
+          "default": "composition.krateo.io/v0-3-2",
+          "description": "Composition Custom Resource apiVersion",
+          "examples": [
+            "composition.krateo.io/v0-0-1"
+          ],
+          "title": "compositionApiVersion",
+          "type": "string"
+        },
         "compositionGroup": {
           "default": "composition.krateo.io",
           "description": "Composition Custom Resource group",
@@ -33,16 +42,16 @@
           "type": "string"
         },
         "compositionId": {
-          "default": "1eed3c65-90d2-4823-a85c-3430d4e41944",
+          "default": "a4a524f7-33a9-4d71-96d5-9e9b7daa3a42",
           "description": "Composition Custom Resource metadata uid",
           "examples": [
-            "9a40181e-d8ee-416f-92c5-f1d85c39f4d5"
+            "a4a524f7-33a9-4d71-96d5-9e9b7daa3a42"
           ],
           "title": "compositionId",
           "type": "string"
         },
         "compositionInstalledVersion": {
-          "default": "v0-0-1",
+          "default": "v0-3-2",
           "description": "Composition Custom Resource installed version",
           "examples": [
             "v0-0-1"
@@ -51,7 +60,7 @@
           "type": "string"
         },
         "compositionKind": {
-          "default": "GithubScaffolding",
+          "default": "CloudnativeStack",
           "description": "Composition Custom Resource kind",
           "examples": [
             "GithubScaffolding"
@@ -60,10 +69,10 @@
           "type": "string"
         },
         "compositionName": {
-          "default": "test2",
+          "default": "cloudnative-stack",
           "description": "Composition Custom Resource metadata name",
           "examples": [
-            "test"
+            "cloudnative-stack"
           ],
           "title": "compositionName",
           "type": "string"
@@ -78,13 +87,22 @@
           "type": "string"
         },
         "compositionResource": {
-          "default": "githubscaffoldings",
+          "default": "cloudnativestacks",
           "description": "Composition Custom Resource plural name",
           "examples": [
             "githubscaffoldings"
           ],
           "title": "compositionResource",
           "type": "string"
+        },
+        "gracefullyPaused": {
+          "default": false,
+          "description": "composition graceful pause",
+          "examples": [
+            "false"
+          ],
+          "title": "gracefullyPaused",
+          "type": "boolean"
         },
         "krateoNamespace": {
           "default": "krateo-system",
@@ -93,24 +111,6 @@
             "krateo-system"
           ],
           "title": "krateoNamespace",
-          "type": "string"
-        },
-        "gracefullyPaused": {
-          "default": "false",
-          "description": "composition graceful pause",
-          "examples": [
-           "false"
-          ],
-          "title": "gracefullyPaused",
-          "type": "string"
-        },
-        "compositionApiVersion": {
-          "default": "composition.krateo.io/v0-0-1",
-          "description": "Composition Custom Resource apiVersion",
-          "examples": [
-            "composition.krateo.io/v0-0-1"
-          ],
-          "title": "compositionApiVersion",
           "type": "string"
         }
       },
