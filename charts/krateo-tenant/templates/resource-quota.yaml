@@ -1,0 +1,22 @@
+{{- $quotas := dict
+  "free" (dict "cpu" "2" "memory" "4Gi" "pods" "20")
+  "starter" (dict "cpu" "4" "memory" "8Gi" "pods" "50")
+  "professional" (dict "cpu" "16" "memory" "32Gi" "pods" "100")
+  "enterprise" (dict "cpu" "32" "memory" "64Gi" "pods" "200")
+-}}
+{{- $plan := .Values.plan | default "free" }}
+{{- $quota := get $quotas $plan | default (get $quotas "free") }}
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: {{ .Values.tenantName | default .Release.Name }}-quota
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "krateo-tenant.labels" . | nindent 4 }}
+spec:
+  hard:
+    requests.cpu: {{ $quota.cpu | quote }}
+    requests.memory: {{ $quota.memory }}
+    limits.cpu: {{ $quota.cpu | quote }}
+    limits.memory: {{ $quota.memory }}
+    pods: {{ $quota.pods | quote }}

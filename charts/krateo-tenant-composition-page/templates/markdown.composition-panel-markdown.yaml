@@ -5,4 +5,17 @@ metadata:
   namespace: {{ .Values.global.compositionNamespace }}
 spec:
   widgetData:
-    markdown: "{{ .Values.global.compositionName }} is a **{{ .Values.global.compositionResource }}** composition of version _{{ .Values.global.compositionGroup }}/{{ .Values.global.compositionInstalledVersion }}_"
+    markdown: |
+      ## Krateo Tenant: {{ .Values.global.compositionName }}
+
+      **Status:** Composition _{{ .Values.global.compositionGroup }}/{{ .Values.global.compositionInstalledVersion }}_
+
+      ### Access your Krateo instance
+
+      Once the vCluster is ready, your Krateo portal will be available at:
+
+      - **Portal:** `https://{{ .Values.global.compositionName }}.app.krateo.io`
+      - **Auth:** `https://{{ .Values.global.compositionName }}.authn.krateo.io`
+      - **API:** `https://{{ .Values.global.compositionName }}.snowplow.krateo.io`
+
+      > Note: URLs depend on your parent cluster's ingress and DNS configuration.

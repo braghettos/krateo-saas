@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.tenantName | default .Release.Name }}-info
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "krateo-tenant.labels" . | nindent 4 }}
+data:
+  tenantName: {{ .Values.tenantName | default .Release.Name | quote }}
+  plan: {{ .Values.plan | default "free" | quote }}
+  authMethod: {{ .Values.authMethod | default "basic" | quote }}
+  krateoVersion: {{ .Values.krateoVersion | default "2.7.0" | quote }}
+  finops: {{ .Values.features.finops | default false | quote }}
+  composableportal: {{ .Values.features.composableportal | default true | quote }}
+  composableoperations: {{ .Values.features.composableoperations | default true | quote }}

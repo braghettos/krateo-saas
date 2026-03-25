@@ -4,7 +4,7 @@ description: A Krateo SaaS tenant blueprint - deploys a vCluster with Krateo Pla
 
 type: application
 
-version: 0.1.0
+version: 0.2.0
 
 home: https://krateo.io
 icon: "https://github.com/krateoplatformops/krateo/blob/main/docs/media/logo.svg"
@@ -21,5 +21,5 @@ dependencies:
     version: "0.24.1"
     repository: "https://charts.loft.sh"
   - name: krateo-tenant-composition-page
-    version: "0.1.0"
+    version: "0.2.0"
     repository: "oci://ghcr.io/braghettos/krateo-saas"

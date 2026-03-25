@@ -815,8 +815,8 @@ krateoplatformops:
       defaultKrateoVersion: "2.7.0"
       chart:
         url: oci://ghcr.io/braghettos/krateo-saas/krateo-tenant
-        version: "0.1.0"
+        version: "0.2.0"
       portal:
         chart:
           url: oci://ghcr.io/braghettos/krateo-saas/krateo-tenant-portal
-          version: "0.1.0"
+          version: "0.2.0"

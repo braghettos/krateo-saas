@@ -73,6 +73,16 @@ vcluster:
       ingresses:
         enabled: true
 
+  controlPlane:
+    statefulSet:
+      resources:
+        limits:
+          cpu: "1"
+          memory: 2Gi
+        requests:
+          cpu: 200m
+          memory: 256Mi
+
   experimental:
     deploy:
       vcluster:
@@ -94,6 +104,41 @@ vcluster:
                   externalIpAvailable: false
                 ingress:
                   enabled: true
+                  frontend:
+                    className: ""
+                    hosts:
+                      - host: app.krateo.local
+                        paths:
+                          - path: /
+                            pathType: Prefix
+                  authn:
+                    className: ""
+                    hosts:
+                      - host: authn.krateo.local
+                        paths:
+                          - path: /
+                            pathType: Prefix
+                  snowplow:
+                    className: ""
+                    hosts:
+                      - host: snowplow.krateo.local
+                        paths:
+                          - path: /
+                            pathType: Prefix
+                  eventsse:
+                    className: ""
+                    hosts:
+                      - host: eventsse.krateo.local
+                        paths:
+                          - path: /
+                            pathType: Prefix
+                  smithery:
+                    className: ""
+                    hosts:
+                      - host: smithery.krateo.local
+                        paths:
+                          - path: /
+                            pathType: Prefix
             release:
               name: krateo
               namespace: krateo-system
