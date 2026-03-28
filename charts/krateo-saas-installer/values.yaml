@@ -795,23 +795,49 @@ krateoplatformops:
     env: {}
     mgmt: {}
 
+  # ─── SaaS Mode ───────────────────────────────────────────────────────
+  # Enables multi-tenant SaaS features: GitHub OAuth login, automatic
+  # tenant namespace provisioning via Kyverno, and plan-based quotas.
+  #
+  # Prerequisites:
+  #   1. Create a GitHub OAuth App at https://github.com/settings/developers
+  #      - "Homepage URL": your Krateo frontend URL (e.g. https://app.example.com)
+  #      - "Authorization callback URL": your authn callback
+  #        (e.g. https://authn.example.com/github/callback)
+  #   2. Create a Kubernetes Secret with the OAuth client secret:
+  #        kubectl create secret generic github-oauth-secret \
+  #          --namespace krateo-system \
+  #          --from-literal=clientSecret=<YOUR_GITHUB_CLIENT_SECRET>
+  #
   saas:
+    # Set to true to enable SaaS multi-tenant mode
     enabled: false
+
     github:
+      # (Required) The OAuth App "Client ID" from GitHub Developer Settings
       clientID: ""
+      # (Required) Reference to the K8s Secret holding the OAuth "Client Secret"
       clientSecretRef:
-        name: github-oauth-secret
-        namespace: krateo-system
-        key: clientSecret
+        name: github-oauth-secret       # Secret name
+        namespace: krateo-system         # Secret namespace
+        key: clientSecret                # Key within the Secret
+      # (Optional) Restrict login to members of this GitHub organization.
+      # Leave empty to allow any GitHub user.
       organization: ""
+      # (Required) Must match the "Authorization callback URL" in your GitHub OAuth App
+      # Example: https://authn.example.com/github/callback
       redirectURL: ""
+
     kyverno:
       chart:
         name: kyverno
         version: "3.3.7"
         repository: https://kyverno.github.io/kyverno/
+
     tenant:
+      # Plan assigned to new tenants (must match a plan in krateo-tenant chart)
       defaultPlan: free
+      # Krateo version deployed for each tenant instance
       defaultKrateoVersion: "2.7.0"
       chart:
         url: oci://ghcr.io/braghettos/krateo-saas/krateo-tenant

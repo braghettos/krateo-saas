@@ -5521,8 +5521,8 @@ spec:
           - name: spec.restActionRef.namespace
             value: krateo-system
 
-    # Create Kyverno ClusterPolicy: on-clientconfig-create
-    - id: create-kyverno-policy-tenant-namespace
+    # Create Kyverno ClusterPolicy: on-clientconfig-create (Namespace + Role + RoleBinding)
+    - id: create-kyverno-policy-tenant-rbac
       type: object
       with:
         apiVersion: kyverno.io/v1
@@ -5530,6 +5530,7 @@ spec:
         metadata:
           name: tenant-namespace-on-login
         set:
+          # Rule 0: Create tenant namespace
           - name: spec.rules[0].name
             value: create-tenant-namespace
           - name: spec.rules[0].match.any[0].resources.kinds[0]
@@ -5550,6 +5551,97 @@ spec:
             value: "{{ `{{ replace_all(request.object.metadata.name, '-clientconfig', '') }}` }}"
           - name: spec.rules[0].generate.synchronize
             value: "true"
+          - name: spec.rules[0].generate.data.metadata.labels.krateo\.io/tenant
+            value: "true"
+          - name: spec.rules[0].generate.data.metadata.labels.krateo\.io/tenant-user
+            value: "{{ `{{ replace_all(request.object.metadata.name, '-clientconfig', '') }}` }}"
+
+          # Rule 1: Create tenant Role
+          - name: spec.rules[1].name
+            value: create-tenant-role
+          - name: spec.rules[1].match.any[0].resources.kinds[0]
+            value: Secret
+          - name: spec.rules[1].preconditions.all[0].key
+            value: "{{ `{{ request.object.metadata.name }}` }}"
+          - name: spec.rules[1].preconditions.all[0].operator
+            value: EndsWith
+          - name: spec.rules[1].preconditions.all[0].value
+            value: "-clientconfig"
+          - name: spec.rules[1].generate.generateExisting
+            value: "false"
+          - name: spec.rules[1].generate.apiVersion
+            value: rbac.authorization.k8s.io/v1
+          - name: spec.rules[1].generate.kind
+            value: Role
+          - name: spec.rules[1].generate.name
+            value: tenant-composition-role
+          - name: spec.rules[1].generate.namespace
+            value: "{{ `{{ replace_all(request.object.metadata.name, '-clientconfig', '') }}` }}"
+          - name: spec.rules[1].generate.synchronize
+            value: "true"
+          - name: spec.rules[1].generate.data.rules[0].apiGroups[0]
+            value: "composition.krateo.io"
+          - name: spec.rules[1].generate.data.rules[0].resources[0]
+            value: "*"
+          - name: spec.rules[1].generate.data.rules[0].verbs[0]
+            value: create
+          - name: spec.rules[1].generate.data.rules[0].verbs[1]
+            value: get
+          - name: spec.rules[1].generate.data.rules[0].verbs[2]
+            value: list
+          - name: spec.rules[1].generate.data.rules[0].verbs[3]
+            value: watch
+          - name: spec.rules[1].generate.data.rules[0].verbs[4]
+            value: delete
+          - name: spec.rules[1].generate.data.rules[0].verbs[5]
+            value: update
+          - name: spec.rules[1].generate.data.rules[0].verbs[6]
+            value: patch
+          - name: spec.rules[1].generate.data.rules[1].apiGroups[0]
+            value: "templates.krateo.io"
+          - name: spec.rules[1].generate.data.rules[1].resources[0]
+            value: "*"
+          - name: spec.rules[1].generate.data.rules[1].verbs[0]
+            value: get
+          - name: spec.rules[1].generate.data.rules[1].verbs[1]
+            value: list
+          - name: spec.rules[1].generate.data.rules[1].verbs[2]
+            value: watch
+          # Rule 2: Create tenant RoleBinding
+          - name: spec.rules[2].name
+            value: create-tenant-rolebinding
+          - name: spec.rules[2].match.any[0].resources.kinds[0]
+            value: Secret
+          - name: spec.rules[2].preconditions.all[0].key
+            value: "{{ `{{ request.object.metadata.name }}` }}"
+          - name: spec.rules[2].preconditions.all[0].operator
+            value: EndsWith
+          - name: spec.rules[2].preconditions.all[0].value
+            value: "-clientconfig"
+          - name: spec.rules[2].generate.generateExisting
+            value: "false"
+          - name: spec.rules[2].generate.apiVersion
+            value: rbac.authorization.k8s.io/v1
+          - name: spec.rules[2].generate.kind
+            value: RoleBinding
+          - name: spec.rules[2].generate.name
+            value: tenant-composition-rolebinding
+          - name: spec.rules[2].generate.namespace
+            value: "{{ `{{ replace_all(request.object.metadata.name, '-clientconfig', '') }}` }}"
+          - name: spec.rules[2].generate.synchronize
+            value: "true"
+          - name: spec.rules[2].generate.data.roleRef.apiGroup
+            value: rbac.authorization.k8s.io
+          - name: spec.rules[2].generate.data.roleRef.kind
+            value: Role
+          - name: spec.rules[2].generate.data.roleRef.name
+            value: tenant-composition-role
+          - name: spec.rules[2].generate.data.subjects[0].kind
+            value: User
+          - name: spec.rules[2].generate.data.subjects[0].name
+            value: "{{ `{{ replace_all(request.object.metadata.name, '-clientconfig', '') }}` }}"
+          - name: spec.rules[2].generate.data.subjects[0].apiGroup
+            value: rbac.authorization.k8s.io
 
     # Register krateo-tenant-portal CompositionDefinition
     - id: register-krateo-tenant-portal-compositiondefinition
