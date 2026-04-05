@@ -1,0 +1,35 @@
+# Usage: kind create cluster --config kind-config.yaml --kubeconfig ~/.kube/krateo-kind.yaml
+# Then pass --kubeconfig ~/.kube/krateo-kind.yaml to all kubectl/helm commands.
+# This avoids overriding the default context used by other agents (e.g., GKE).
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: krateo-saas
+nodes:
+  - role: control-plane
+    extraPortMappings:
+      # frontend
+      - containerPort: 30080
+        hostPort: 30080
+        protocol: TCP
+      # snowplow
+      - containerPort: 30081
+        hostPort: 30081
+        protocol: TCP
+      # authn
+      - containerPort: 30082
+        hostPort: 30082
+        protocol: TCP
+      # eventsse
+      - containerPort: 30083
+        hostPort: 30083
+        protocol: TCP
+      # finops-database-handler (optional, only needed if FinOps enabled)
+      - containerPort: 30086
+        hostPort: 30086
+        protocol: TCP
+    kubeadmConfigPatches:
+      - |
+        kind: InitConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            node-labels: "ingress-ready=true"

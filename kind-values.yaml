@@ -1,0 +1,30 @@
+krateoplatformops:
+  service:
+    type: NodePort
+    externalIpAvailable: false
+
+  # Disable FinOps for local dev to save resources
+  composablefinops:
+    enabled: false
+
+  saas:
+    enabled: true
+    github:
+      clientID: "<YOUR_GITHUB_CLIENT_ID>"
+      clientSecretRef:
+        name: github-oauth-secret
+        namespace: krateo-system
+        key: clientSecret
+      # Leave empty to allow any GitHub user; set to your org to restrict
+      organization: ""
+      redirectURL: "http://localhost:30082/github/callback"
+    tenant:
+      defaultPlan: free
+      defaultKrateoVersion: "2.7.0"
+      chart:
+        url: oci://ghcr.io/braghettos/krateo-saas/krateo-tenant
+        version: "0.2.0"
+      portal:
+        chart:
+          url: oci://ghcr.io/braghettos/krateo-saas/krateo-tenant-portal
+          version: "0.2.0"
